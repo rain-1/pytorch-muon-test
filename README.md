@@ -12,6 +12,10 @@ python train.py --epochs 5 --batch-size 128 --lr 1e-3 --weight-decay 0.01
 ```
 Flags can be adjusted as needed (see `python train.py -h`). Data downloads to `./data` by default.
 
+### Swap in your optimizer
+- Create your optimizer logic inside `muon.py` (a `Muon` class is scaffolded).
+- Run with `--optimizer muon` to use it: `python train.py --optimizer muon ...`
+
 ## Good parameters
 
 `python ./train.py --epochs 8 --batch-size 64 --log-interval 10`
