@@ -154,7 +154,7 @@ def parse_args() -> argparse.Namespace:
         "--optimizer",
         type=str,
         default="adamw",
-        choices=["adamw", "muon", "sgd"],
+        choices=["adamw", "muon", "sgd", "officialmuon", "combined_adamw_muon", "combined_officialmuon_adamw"],
         help="Optimizer choice; 'muon' lets you plug in your custom optimizer from muon.py.",
     )
     return parser.parse_args()
@@ -165,12 +165,20 @@ def build_optimizer(
 ) -> optim.Optimizer:
     if name == "adamw":
         return optim.AdamW(params, lr=lr, weight_decay=weight_decay)
+    if name == "officialmuon":
+        return optim.Muon(params, lr=lr, weight_decay=weight_decay)
     if name == "sgd":
         from sgd import SimpleSGD
         return SimpleSGD(params, lr=lr, weight_decay=weight_decay)
     if name == "muon":
         from muon import Muon
         return Muon(params, lr=lr, weight_decay=weight_decay)
+    if name == "combined_adamw_muon":
+        from muon import CombinedAdamWMuon
+        return CombinedAdamWMuon(params, lr=lr, weight_decay=weight_decay)
+    if name == "combined_officialmuon_adamw":
+        from muon import CombinedOfficialMuonAdamW
+        return CombinedOfficialMuonAdamW(params, lr=lr, weight_decay=weight_decay)
     raise ValueError(f"Unknown optimizer {name}")
 
 
