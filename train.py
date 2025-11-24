@@ -170,8 +170,6 @@ def build_optimizer(
         return SimpleSGD(params, lr=lr, weight_decay=weight_decay)
     if name == "muon":
         from muon import Muon
-
-        # Muon is a placeholder optimizer you can implement in muon.py
         return Muon(params, lr=lr, weight_decay=weight_decay)
     raise ValueError(f"Unknown optimizer {name}")
 
