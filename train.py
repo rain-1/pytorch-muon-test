@@ -154,7 +154,7 @@ def parse_args() -> argparse.Namespace:
         "--optimizer",
         type=str,
         default="adamw",
-        choices=["adamw", "muon"],
+        choices=["adamw", "muon", "sgd"],
         help="Optimizer choice; 'muon' lets you plug in your custom optimizer from muon.py.",
     )
     return parser.parse_args()
@@ -165,6 +165,9 @@ def build_optimizer(
 ) -> optim.Optimizer:
     if name == "adamw":
         return optim.AdamW(params, lr=lr, weight_decay=weight_decay)
+    if name == "sgd":
+        from sgd import SimpleSGD
+        return SimpleSGD(params, lr=lr, weight_decay=weight_decay)
     if name == "muon":
         from muon import Muon
 
