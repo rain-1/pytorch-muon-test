@@ -185,11 +185,12 @@ def main() -> None:
     criterion = nn.CrossEntropyLoss()
     optimizer = build_optimizer(args.optimizer, model.parameters(), args.lr, args.weight_decay)
 
+    run_name = args.wandb_run_name or f"{args.optimizer}-seed{args.seed}"
     wandb.init(
         project=args.wandb_project,
         mode=args.wandb_mode,
         config=vars(args),
-        name=args.wandb_run_name,
+        name=run_name,
     )
     wandb.watch(model, log="all", log_freq=args.log_interval)
 

@@ -46,7 +46,17 @@ class Muon(Optimizer):
     def __init__(self, params, lr: float = 1e-3, weight_decay: float = 0.0):
         # Flatten param groups the same way most torch optimizers do
         defaults = {"lr": lr, "weight_decay": weight_decay}
-        super().__init__(params, defaults)
+        # super().__init__(params, defaults)
+
+        plain, geom = [], []
+        for p in params:
+            (geom if p.ndim == 2 else plain).append(p)
+        self.geom_params = geom
+        self.adamw = torch.optim.AdamW(
+            plain, lr=lr, weight_decay=weight_decay
+        )
+        super().__init__(geom, defaults)
+
         self.b = 0
 
     @torch.no_grad()
@@ -55,6 +65,9 @@ class Muon(Optimizer):
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
+        
+        # AdamW for non-2D params
+        self.adamw.step()
 
         for group in self.param_groups:
             lr = group["lr"]
@@ -63,12 +76,12 @@ class Muon(Optimizer):
                 if p.grad is None:
                     continue
                 grad = p.grad
-                if len(p.grad.shape) != 2:
+                #if len(p.grad.shape) != 2:
                     # do normal SVD on non-matrix parameters
-                    if wd != 0:
-                        grad = grad.add(p, alpha=wd)
-                        p.add_(grad, alpha=-lr)
-                    continue
+                    # if wd != 0:
+                    #     grad = grad.add(p, alpha=wd)
+                    #     p.add_(grad, alpha=-lr)
+                #    continue
                 #print(grad.shape)
                 # orthogonalize grad using SVG
                 muongrad = newton_schulz_5(grad)
@@ -81,4 +94,5 @@ class Muon(Optimizer):
         raise NotImplementedError("Implement Muon.step()")
 
     def zero_grad(self, set_to_none: bool = False):
+        self.adamw.zero_grad(set_to_none=set_to_none)
         return super().zero_grad(set_to_none=set_to_none)
